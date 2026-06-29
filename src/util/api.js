@@ -16,7 +16,7 @@ export const apiBaseUrl = marketplaceRootURL => {
   }
 
   // Otherwise, use the given marketplaceRootURL parameter or the same domain and port as the frontend
-  return marketplaceRootURL ? marketplaceRootURL.replace(/\/$/, '') : `${window.location.origin}`;
+  return marketplaceRootURL ? marketplaceRootURL.replace(/\/$/, '') : `${window?.location?.origin}`;
 };
 
 // Application type handlers for JS SDK.
@@ -67,7 +67,7 @@ const request = (path, options = {}) => {
     ...rest,
   };
 
-  return window.fetch(url, fetchOptions).then(res => {
+  return window?.fetch(url, fetchOptions).then(res => {
     const contentTypeHeader = res.headers.get('Content-Type');
     const contentType = contentTypeHeader ? contentTypeHeader.split(';')[0] : null;
 
