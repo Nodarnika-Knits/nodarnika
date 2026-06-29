@@ -26,6 +26,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
     isCustomer,
     actionButtonProps,
     leaveReviewProps,
+    onOpenDisputeModal,
   } = processInfo;
 
   return new ConditionalResolver([processState, transactionRole])
@@ -74,6 +75,31 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
         showDispute: true,
         showActionButtons: true,
         primaryButtonProps: actionButtonProps(transitions.MARK_RECEIVED, CUSTOMER),
+        secondaryButtonProps: actionButtonProps(transitions.DISPUTE, CUSTOMER, {
+          onAction: onOpenDisputeModal,
+        }),
+      };
+    })
+    .cond([states.RECEIVED, CUSTOMER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showDispute: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(transitions.DISPUTE, CUSTOMER, {
+          onAction: onOpenDisputeModal,
+        }),
+      };
+    })
+    .cond([states.DISPUTED, PROVIDER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showDispute: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(transitions.CANCEL_FROM_DISPUTED, PROVIDER),
       };
     })
     .cond([states.COMPLETED, _], () => {

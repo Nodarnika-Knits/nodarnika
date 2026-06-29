@@ -97,6 +97,7 @@ export const getStateData = (params, process) => {
     sendReviewInProgress,
     sendReviewError,
     onOpenReviewModal,
+    onOpenDisputeModal,
     //onOpenRequestChangesModal,
     //onOpenMakeCounterOfferModal,
     //onCheckoutRedirect,
@@ -146,6 +147,7 @@ export const getStateData = (params, process) => {
       isCustomer,
       actionButtonProps: getActionButtonProps,
       leaveReviewProps: getLeaveReviewProps,
+      onOpenDisputeModal,
     };
   };
 

@@ -170,7 +170,7 @@ class SendMessageFormComponent extends Component {
                 onFocus={this.handleFocus}
                 onBlur={this.handleBlur}
               />
-              {showUploads ? (
+              {/* {showUploads ? (
                 <div className={css.files}>
                   {files.map(f => (
                     <FileUpload
@@ -181,7 +181,7 @@ class SendMessageFormComponent extends Component {
                     />
                   ))}
                 </div>
-              ) : null}
+              ) : null} */}
               <div className={css.submitContainer}>
                 <div className={css.errorContainer}>
                   {sendMessageError ? (
@@ -199,7 +199,7 @@ class SendMessageFormComponent extends Component {
                 </div>
 
                 <div className={css.messageActions}>
-                  <FieldAddFile
+                  {/* <FieldAddFile
                     id="addFile"
                     name="addFile"
                     label={addFileLabel}
@@ -210,7 +210,7 @@ class SendMessageFormComponent extends Component {
                     className={css.fileLink}
                     showFileLink={showFileLink}
                     fileInputRef={this.fileInputRef}
-                  />
+                  /> */}
                   <Button
                     className={css.submitButton}
                     inProgress={submitInProgress}

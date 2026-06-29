@@ -64,7 +64,7 @@ import RequestQuote from './RequestQuote/RequestQuote';
 import Offer from './Offer/Offer';
 import TransactionFields from './TransactionFields/TransactionFields.js';
 import ActivityFeed from './ActivityFeed/ActivityFeed';
-import DisputeModal from './DisputeModal/DisputeModal';
+import DisputeModal, { DISPUTE_REASONS } from './DisputeModal/DisputeModal';
 import ReviewModal from './ReviewModal/ReviewModal';
 import RequestChangesModal from './RequestChangesModal/RequestChangesModal';
 import MakeCounterOfferModal from './MakeCounterOfferModal/MakeCounterOfferModal';
@@ -88,17 +88,56 @@ import css from './TransactionPage.module.css';
 const MAX_MOBILE_SCREEN_WIDTH = 1023;
 const SEND_MESSAGE_FORM_ID = 'TransactionPanel.SendMessageForm';
 
-// Submit dispute and close the review modal
+// Submit dispute: send a message with details + attachments, then make the transition
 const onDisputeOrder = (
   currentTransactionId,
   transitionName,
   onTransition,
-  setDisputeSubmitted
+  onSendMessage,
+  config,
+  intl,
+  reasonLabels,
+  setDisputeSubmitted,
+  fileUploads,
+  onClearUploadedFiles
 ) => values => {
-  const { disputeReason } = values;
-  const params = disputeReason ? { protectedData: { disputeReason } } : {};
-  onTransition(currentTransactionId, transitionName, params)
-    .then(r => {
+  const { disputeReason, disputeComment } = values;
+
+  const readyFiles = fileUploads?.filter(f => f.file?.id) || [];
+  const messageFileIds =
+    readyFiles.length > 0 ? readyFiles.map(f => ({ fileId: f.file.id })) : null;
+
+  const reasonEntry = reasonLabels.find(r => r.value === disputeReason);
+  const reasonLabel = reasonEntry ? intl.formatMessage({ id: reasonEntry.labelId }) : disputeReason;
+
+  const sections = [
+    reasonLabel
+      ? `${intl.formatMessage({ id: 'TransactionPage.disputeMessage.reason' })}: ${reasonLabel}`
+      : null,
+    disputeComment
+      ? `${intl.formatMessage({
+          id: 'TransactionPage.disputeMessage.details',
+        })}:\n${disputeComment}`
+      : null,
+    messageFileIds
+      ? intl.formatMessage({ id: 'TransactionPage.disputeMessage.seeAttachments' })
+      : null,
+  ].filter(Boolean);
+
+  const message = sections.join('\n\n');
+
+  const protectedData = {
+    ...(disputeReason ? { disputeReason } : {}),
+    ...(disputeComment ? { disputeComment } : {}),
+  };
+  const params = Object.keys(protectedData).length > 0 ? { protectedData } : {};
+
+  onSendMessage(currentTransactionId, message, config, messageFileIds)
+    .then(() => onTransition(currentTransactionId, transitionName, params))
+    .then(() => {
+      if (readyFiles.length > 0) {
+        onClearUploadedFiles(fileUploads.map(f => f.tempId));
+      }
       return setDisputeSubmitted(true);
     })
     .catch(e => {
@@ -301,6 +340,7 @@ const useUploadNavigationBlock = (isBlockNavigation, history, message) => {
 export const TransactionPageComponent = props => {
   const [isDisputeModalOpen, setDisputeModalOpen] = useState(false);
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
+  const [disputeFileTempIds, setDisputeFileTempIds] = useState([]);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [isRequestChangesModalOpen, setRequestChangesModalOpen] = useState(false);
@@ -607,6 +647,30 @@ export const TransactionPageComponent = props => {
     onClearUploadedFiles([tempId]);
   };
 
+  // Dispute modal file upload handlers — tracked separately from message form uploads
+  const disputeFiles = fileUploads.filter(f => disputeFileTempIds.includes(f.tempId));
+
+  const onUploadFileToDispute = file => {
+    if (file) {
+      const tempId = `${Date.now()}-${Math.random()}`;
+      setDisputeFileTempIds(ids => [...ids, tempId]);
+      onUploadFile(file, tempId);
+    }
+  };
+
+  const onRemoveFileFromDispute = tempId => {
+    setDisputeFileTempIds(ids => ids.filter(id => id !== tempId));
+    onClearUploadedFiles([tempId]);
+  };
+
+  const onCloseDisputeModal = () => {
+    if (disputeFileTempIds.length > 0) {
+      onClearUploadedFiles(disputeFileTempIds);
+      setDisputeFileTempIds([]);
+    }
+    setDisputeModalOpen(false);
+  };
+
   const onSendMessageFormFocus = () => {
     if (isMobileSafariRef.current) {
       window.scroll({ top: document.body.scrollHeight, left: 0, behavior: 'smooth' });
@@ -708,6 +772,7 @@ export const TransactionPageComponent = props => {
           sendReviewError,
           onTransition,
           onOpenReviewModal,
+          onOpenDisputeModal,
           onOpenRequestChangesModal,
           onOpenMakeCounterOfferModal,
           onCheckoutRedirect: handleSubmitOrderRequest,
@@ -1001,17 +1066,29 @@ export const TransactionPageComponent = props => {
             id="DisputeOrderModal"
             isOpen={isDisputeModalOpen}
             focusElementId={`${actionButtonContainer}_disputeOrderButton`}
-            onCloseModal={() => setDisputeModalOpen(false)}
+            onCloseModal={onCloseDisputeModal}
             onManageDisableScrolling={onManageDisableScrolling}
             onDisputeOrder={onDisputeOrder(
               transaction?.id,
-              process.transitions.DISPUTE,
+              stateData?.processState === 'received'
+                ? process.transitions.DISPUTE_AFTER_RECEIVE
+                : process.transitions.DISPUTE,
               onTransition,
-              setDisputeSubmitted
+              onSendMessage,
+              config,
+              intl,
+              DISPUTE_REASONS,
+              setDisputeSubmitted,
+              disputeFiles,
+              onClearUploadedFiles
             )}
             disputeSubmitted={disputeSubmitted}
             disputeInProgress={transitionInProgress === process.transitions.DISPUTE}
             disputeError={transitionError}
+            files={disputeFiles}
+            onFileUpload={onUploadFileToDispute}
+            onRemoveFile={onRemoveFileFromDispute}
+            onDownloadFile={onDownloadFile}
           />
         ) : null}
         {process?.transitions?.REQUEST_CHANGES ? (

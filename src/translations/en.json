@@ -1449,5 +1449,20 @@
   "UserNav.accountSettings": "Account settings",
   "UserNav.profileSettings": "Profile settings",
   "UserNav.screenreader.userNav": "User profile navigation",
-  "UserNav.yourListings": "Your listings"
+  "UserNav.yourListings": "Your listings",
+  "DisputeModal.reasonLabel": "Reason for dispute",
+  "DisputeModal.reasonPlaceholder": "Select a reason…",
+  "DisputeModal.reasonRequired": "Please select a reason",
+  "DisputeModal.reason.wrongItem": "Wrong item received",
+  "DisputeModal.reason.damaged": "Item arrived damaged",
+  "DisputeModal.reason.notAsDescribed": "Item not as described",
+  "DisputeModal.reason.notReceived": "Item not received",
+  "DisputeModal.reason.other": "Other",
+  "DisputeModal.mediaLabel": "Supporting photos or documents (optional, max 3)",
+  "DisputeModal.addMedia": "Attach a file",
+  "TransactionPage.disputeMessage.reason": "Reason for dispute",
+  "TransactionPage.disputeMessage.details": "Details",
+  "TransactionPage.disputeMessage.seeAttachments": "See the Attachments below",
+  "TransactionPage.default-purchase.provider.transition-cancel-from-disputed.actionButton": "Accept return",
+  "TransactionPage.default-purchase.provider.transition-cancel-from-disputed.actionError": "Oops, accepting the return failed. Please refresh the page and try again."
 }

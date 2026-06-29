@@ -229,11 +229,11 @@ export class TransactionPanelComponent extends Component {
                       priceVariantName={priceVariantName}
                     />
                   ) : null}
-                  <DiminishedActionButtonMaybe
+                  {/* <DiminishedActionButtonMaybe
                     id="mobile_disputeOrderButton"
                     showDispute={stateData.showDispute}
                     onOpenDisputeModal={onOpenDisputeModal}
-                  />
+                  /> */}
                 </div>
 
                 {savePaymentMethodFailed ? (
@@ -333,11 +333,11 @@ export class TransactionPanelComponent extends Component {
                   <div className={css.desktopActionButtons}>{actionButtons('desktop')}</div>
                 ) : null}
               </div>
-              <DiminishedActionButtonMaybe
+              {/* <DiminishedActionButtonMaybe
                 id="desktop_disputeOrderButton"
                 showDispute={stateData.showDispute}
                 onOpenDisputeModal={onOpenDisputeModal}
-              />
+              /> */}
             </div>
           </div>
         </div>

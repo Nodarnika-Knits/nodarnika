@@ -57,10 +57,13 @@ export const transitions = {
   DISPUTE: 'transition/dispute',
   OPERATOR_DISPUTE: 'transition/operator-dispute',
 
+  // Customer can dispute after marking the order as received (within the 14D auto-complete window)
+  DISPUTE_AFTER_RECEIVE: 'transition/dispute-after-receive',
+
   // If nothing is done to disputed transaction it ends up to Canceled state
   AUTO_CANCEL_FROM_DISPUTED: 'transition/auto-cancel-from-disputed',
 
-  // Operator can cancel disputed transaction manually
+  // Provider can cancel disputed transaction manually
   CANCEL_FROM_DISPUTED: 'transition/cancel-from-disputed',
 
   // Operator can mark the disputed transaction as received
@@ -180,6 +183,7 @@ export const graph = {
     [states.RECEIVED]: {
       on: {
         [transitions.AUTO_COMPLETE]: states.COMPLETED,
+        [transitions.DISPUTE_AFTER_RECEIVE]: states.DISPUTED,
       },
     },
 
@@ -219,6 +223,7 @@ export const isRelevantPastTransition = transition => {
     transitions.OPERATOR_MARK_DELIVERED,
     transitions.DISPUTE,
     transitions.OPERATOR_DISPUTE,
+    transitions.DISPUTE_AFTER_RECEIVE,
     transitions.AUTO_COMPLETE,
     transitions.AUTO_CANCEL_FROM_DISPUTED,
     transitions.CANCEL_FROM_DISPUTED,
