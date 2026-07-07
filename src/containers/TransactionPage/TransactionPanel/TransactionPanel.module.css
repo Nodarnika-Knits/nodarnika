@@ -388,6 +388,32 @@
   }
 }
 
+.shipmentInfoSection {
+  margin-top: 24px;
+}
+
+.shipmentInfoContent {
+  padding: 0 0 0 13px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shipmentField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shipmentFieldLabel {
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 13px;
+  color: var(--colorGrey500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .disputeInfoSection {
   margin-bottom: 24px;
 }

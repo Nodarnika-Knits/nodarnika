@@ -68,6 +68,7 @@ import DisputeModal, { DISPUTE_REASONS } from './DisputeModal/DisputeModal';
 import ReviewModal from './ReviewModal/ReviewModal';
 import RequestChangesModal from './RequestChangesModal/RequestChangesModal';
 import MakeCounterOfferModal from './MakeCounterOfferModal/MakeCounterOfferModal';
+import MarkDeliveredModal from './MarkDeliveredModal/MarkDeliveredModal';
 import SendMessageForm from './SendMessageForm/SendMessageForm';
 import TransactionPanel from './TransactionPanel/TransactionPanel';
 
@@ -99,9 +100,10 @@ const onDisputeOrder = (
   reasonLabels,
   setDisputeSubmitted,
   fileUploads,
-  onClearUploadedFiles
+  onClearUploadedFiles,
+  existingShipmentDetails
 ) => values => {
-  const { disputeReason, disputeComment } = values;
+  const { disputeReason, disputeComment, shippingCarrier, trackingNumber } = values;
 
   const readyFiles = fileUploads?.filter(f => f.file?.id) || [];
   const messageFileIds =
@@ -126,9 +128,16 @@ const onDisputeOrder = (
 
   const message = sections.join('\n\n');
 
+  const shipmentDetail = {
+    role: CUSTOMER,
+    ...(shippingCarrier ? { shippingCarrier } : {}),
+    ...(trackingNumber ? { trackingNumber } : {}),
+  };
+
   const protectedData = {
     ...(disputeReason ? { disputeReason } : {}),
     ...(disputeComment ? { disputeComment } : {}),
+    shipmentDetails: [...(existingShipmentDetails || []), shipmentDetail],
   };
   const params = Object.keys(protectedData).length > 0 ? { protectedData } : {};
 
@@ -197,6 +206,33 @@ const onMakeCounterOffer = (
     .then(r => {
       setMakeCounterOfferModalOpen(false);
       return setCounterOfferSubmitted(true);
+    })
+    .catch(e => {
+      // Do nothing, error will be handled by the form
+    });
+};
+
+// Submit shipping carrier and tracking number, then make the mark-delivered transition
+const onMarkDelivered = (
+  currentTransactionId,
+  transitionName,
+  onTransition,
+  existingShipmentDetails,
+  setMarkDeliveredModalOpen,
+  setMarkDeliveredSubmitted
+) => values => {
+  const { shippingCarrier, trackingNumber } = values;
+  const shipmentDetail = { role: PROVIDER, shippingCarrier, trackingNumber };
+  const params = {
+    protectedData: {
+      shipmentDetails: [...(existingShipmentDetails || []), shipmentDetail],
+    },
+  };
+
+  onTransition(currentTransactionId, transitionName, params)
+    .then(r => {
+      setMarkDeliveredModalOpen(false);
+      return setMarkDeliveredSubmitted(true);
     })
     .catch(e => {
       // Do nothing, error will be handled by the form
@@ -347,6 +383,8 @@ export const TransactionPageComponent = props => {
   const [changeRequestSubmitted, setChangeRequestSubmitted] = useState(false);
   const [isMakeCounterOfferModalOpen, setMakeCounterOfferModalOpen] = useState(false);
   const [counterOfferSubmitted, setCounterOfferSubmitted] = useState(false);
+  const [isMarkDeliveredModalOpen, setMarkDeliveredModalOpen] = useState(false);
+  const [markDeliveredSubmitted, setMarkDeliveredSubmitted] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -531,6 +569,12 @@ export const TransactionPageComponent = props => {
   // This is called from action buttons
   const onOpenMakeCounterOfferModal = () => {
     setMakeCounterOfferModalOpen(true);
+  };
+
+  // Open mark delivered modal
+  // This is called from action buttons
+  const onOpenMarkDeliveredModal = () => {
+    setMarkDeliveredModalOpen(true);
   };
 
   // Submit review and close the review modal
@@ -775,6 +819,7 @@ export const TransactionPageComponent = props => {
           onOpenDisputeModal,
           onOpenRequestChangesModal,
           onOpenMakeCounterOfferModal,
+          onOpenMarkDeliveredModal,
           onCheckoutRedirect: handleSubmitOrderRequest,
           onMakeOfferRedirect: onMakeOffer,
           intl,
@@ -1080,7 +1125,8 @@ export const TransactionPageComponent = props => {
               DISPUTE_REASONS,
               setDisputeSubmitted,
               disputeFiles,
-              onClearUploadedFiles
+              onClearUploadedFiles,
+              transaction?.attributes?.protectedData?.shipmentDetails
             )}
             disputeSubmitted={disputeSubmitted}
             disputeInProgress={transitionInProgress === process.transitions.DISPUTE}
@@ -1135,6 +1181,26 @@ export const TransactionPageComponent = props => {
             counterOfferInProgress={counterOffers.includes(transitionInProgress)}
             counterOfferError={transitionError}
             currencyConfig={currencyConfig}
+          />
+        ) : null}
+        {process?.transitions?.MARK_DELIVERED ? (
+          <MarkDeliveredModal
+            id="MarkDeliveredModal"
+            isOpen={isMarkDeliveredModalOpen}
+            focusElementId={`${actionButtonContainer}_${ACTION_BUTTON_1_ID}`}
+            onCloseModal={() => setMarkDeliveredModalOpen(false)}
+            onManageDisableScrolling={onManageDisableScrolling}
+            onMarkDelivered={onMarkDelivered(
+              transaction?.id,
+              process.transitions.MARK_DELIVERED,
+              onTransition,
+              transaction?.attributes?.protectedData?.shipmentDetails,
+              setMarkDeliveredModalOpen,
+              setMarkDeliveredSubmitted
+            )}
+            markDeliveredSubmitted={markDeliveredSubmitted}
+            markDeliveredInProgress={transitionInProgress === process.transitions.MARK_DELIVERED}
+            markDeliveredError={transitionError}
           />
         ) : null}
       </LayoutSingleColumn>

@@ -13,7 +13,7 @@ import {
  * @param {*} processInfo  details about process
  */
 export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
-  const { transaction, transactionRole, nextTransitions } = txInfo;
+  const { transaction, transactionRole, nextTransitions, onOpenMarkDeliveredModal } = txInfo;
   const isProviderBanned = transaction?.provider?.attributes?.banned;
   const isShippable = transaction?.attributes?.protectedData?.deliveryMethod === 'shipping';
   const _ = CONDITIONAL_RESOLVER_WILDCARD;
@@ -64,6 +64,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
         showActionButtons: true,
         primaryButtonProps: actionButtonProps(transitions.MARK_DELIVERED, PROVIDER, {
           actionButtonTranslationId,
+          ...(isShippable ? { onAction: onOpenMarkDeliveredModal } : {}),
         }),
       };
     })

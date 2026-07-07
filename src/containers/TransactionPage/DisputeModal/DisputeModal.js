@@ -120,55 +120,77 @@ const DisputeForm = props => {
               validate={required(intl.formatMessage({ id: 'DisputeModal.disputeReasonRequired' }))}
             />
 
+            <FieldTextInput
+              className={css.disputeField}
+              type="text"
+              id={formId ? `${formId}.shippingCarrier` : 'shippingCarrier'}
+              name="shippingCarrier"
+              label={intl.formatMessage({ id: 'DisputeModal.shippingCarrierLabel' })}
+              placeholder={intl.formatMessage({ id: 'DisputeModal.shippingCarrierPlaceholder' })}
+              validate={required(
+                intl.formatMessage({ id: 'DisputeModal.shippingCarrierRequired' })
+              )}
+            />
+
+            <FieldTextInput
+              className={css.disputeField}
+              type="text"
+              id={formId ? `${formId}.trackingNumber` : 'trackingNumber'}
+              name="trackingNumber"
+              label={intl.formatMessage({ id: 'DisputeModal.trackingNumberLabel' })}
+              placeholder={intl.formatMessage({ id: 'DisputeModal.trackingNumberPlaceholder' })}
+              validate={required(intl.formatMessage({ id: 'DisputeModal.trackingNumberRequired' }))}
+            />
+
             <div className={css.mediaSection}>
-                <p className={css.mediaLabel}>
-                  <FormattedMessage id="DisputeModal.mediaLabel" />
-                </p>
-                {files.length > 0 ? (
-                  <div className={css.files}>
-                    {files.map(f => (
-                      <FileUpload
-                        item={f}
-                        key={f.tempId}
-                        onRemoveFile={onRemoveFileAndClearInput}
-                        onDownloadFile={onDownloadFile}
-                      />
-                    ))}
-                  </div>
-                ) : null}
-                {canAddMoreFiles ? (
-                  <Field name="addFile" type="file">
-                    {fieldProps => {
-                      const { input } = fieldProps;
-                      const onChange = e => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          onFileUpload(file);
-                          e.target.value = '';
-                        }
-                      };
-                      return (
-                        <label className={css.addFileButton}>
-                          <input
-                            id="disputeModalAddFile"
-                            name={input.name}
-                            type="file"
-                            onChange={onChange}
-                            ref={fileInputRef}
-                            className={css.hiddenFileInput}
-                          />
-                          <span className={css.addFileLabel}>
-                            <IconAttachFile />
-                            <FormattedMessage id="DisputeModal.addMedia" />
-                            <span className={css.addFileCount}>
-                              ({files.length}/{MAX_DISPUTE_FILES})
-                            </span>
+              <p className={css.mediaLabel}>
+                <FormattedMessage id="DisputeModal.mediaLabel" />
+              </p>
+              {files.length > 0 ? (
+                <div className={css.files}>
+                  {files.map(f => (
+                    <FileUpload
+                      item={f}
+                      key={f.tempId}
+                      onRemoveFile={onRemoveFileAndClearInput}
+                      onDownloadFile={onDownloadFile}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              {canAddMoreFiles ? (
+                <Field name="addFile" type="file">
+                  {fieldProps => {
+                    const { input } = fieldProps;
+                    const onChange = e => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        onFileUpload(file);
+                        e.target.value = '';
+                      }
+                    };
+                    return (
+                      <label className={css.addFileButton}>
+                        <input
+                          id="disputeModalAddFile"
+                          name={input.name}
+                          type="file"
+                          onChange={onChange}
+                          ref={fileInputRef}
+                          className={css.hiddenFileInput}
+                        />
+                        <span className={css.addFileLabel}>
+                          <IconAttachFile />
+                          <FormattedMessage id="DisputeModal.addMedia" />
+                          <span className={css.addFileCount}>
+                            ({files.length}/{MAX_DISPUTE_FILES})
                           </span>
-                        </label>
-                      );
-                    }}
-                  </Field>
-                ) : null}
+                        </span>
+                      </label>
+                    );
+                  }}
+                </Field>
+              ) : null}
             </div>
 
             <p className={css.errorPlaceholder}>{errorMessageMaybe}</p>
