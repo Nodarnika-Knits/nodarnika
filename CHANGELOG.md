@@ -14,6 +14,17 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
+- [fix] CreateUserWithIdp: harden data handling of st-authinfo cookie.
+  [#874](https://github.com/sharetribe/web-template/pull/874)
+- [change] Update several dependencies. [#875](https://github.com/sharetribe/web-template/pull/875)
+- [fix] login-as feature: harden error handling.
+  [#873](https://github.com/sharetribe/web-template/pull/873)
+- [change] CustomLinksMenu: refactor rendering order to improve hydration behavior.
+  [#872](https://github.com/sharetribe/web-template/pull/872)
+- [change] Update Stripe Connect account requirements for Netherlands. Individual accounts are
+  supported now for users without access to the Stripe dashboard.
+  [#871](https://github.com/sharetribe/web-template/pull/871)
+
 ## [v11.2.2] 2026-06-26
 
 - [fix] Fix open redirect vulnerabilities that could be abused for phishing attacks.
