@@ -91,6 +91,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
         primaryButtonProps: actionButtonProps(transitions.DISPUTE, CUSTOMER, {
           onAction: onOpenDisputeModal,
         }),
+        secondaryButtonProps: leaveReviewProps,
       };
     })
     .cond([states.DISPUTED, PROVIDER], () => {

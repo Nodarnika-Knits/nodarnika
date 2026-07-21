@@ -163,6 +163,11 @@
    :actions [{:name :action/post-review-by-customer}],
    :from :state/completed,
    :to :state/reviewed-by-customer}
+  {:name :transition/early-review-1-by-customer,
+   :actor :actor.role/customer,
+   :actions [{:name :action/post-review-by-customer}],
+   :from :state/received,
+   :to :state/reviewed-by-customer} 
   {:name :transition/review-2-by-customer,
    :actor :actor.role/customer,
    :actions
@@ -327,6 +332,10 @@
    :on :transition/review-1-by-customer,
    :to :actor.role/provider,
    :template :purchase-review-by-other-party-unpublished}
+  {:name :notification/early-review-by-customer-first,
+   :on :transition/early-review-1-by-customer,
+   :to :actor.role/provider,
+   :template :purchase-review-by-other-party-unpublished} 
   {:name :notification/review-by-provider-second,
    :on :transition/review-2-by-provider,
    :to :actor.role/customer,

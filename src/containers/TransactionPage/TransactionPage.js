@@ -582,10 +582,14 @@ export const TransactionPageComponent = props => {
     const { reviewRating, reviewContent } = values;
     const rating = Number.parseInt(reviewRating, 10);
     const { states, transitions } = process;
+
     const transitionOptions =
       transactionRole === CUSTOMER
         ? {
-            reviewAsFirst: transitions.REVIEW_1_BY_CUSTOMER,
+            reviewAsFirst:
+              transaction.attributes.lastTransition === transitions.MARK_RECEIVED
+                ? transitions.EARLY_REVIEW_1_BY_CUSTOMER
+                : transitions.REVIEW_1_BY_CUSTOMER,
             reviewAsSecond: transitions.REVIEW_2_BY_CUSTOMER,
             hasOtherPartyReviewedFirst: process
               .getTransitionsToStates([states.REVIEWED_BY_PROVIDER])

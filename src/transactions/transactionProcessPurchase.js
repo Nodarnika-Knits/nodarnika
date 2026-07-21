@@ -79,6 +79,7 @@ export const transitions = {
   REVIEW_1_BY_PROVIDER: 'transition/review-1-by-provider',
   REVIEW_2_BY_PROVIDER: 'transition/review-2-by-provider',
   REVIEW_1_BY_CUSTOMER: 'transition/review-1-by-customer',
+  EARLY_REVIEW_1_BY_CUSTOMER: 'transition/early-review-1-by-customer',
   REVIEW_2_BY_CUSTOMER: 'transition/review-2-by-customer',
   EXPIRE_CUSTOMER_REVIEW_PERIOD: 'transition/expire-customer-review-period',
   EXPIRE_PROVIDER_REVIEW_PERIOD: 'transition/expire-provider-review-period',
@@ -184,6 +185,7 @@ export const graph = {
       on: {
         [transitions.AUTO_COMPLETE]: states.COMPLETED,
         [transitions.DISPUTE_AFTER_RECEIVE]: states.DISPUTED,
+        [transitions.EARLY_REVIEW_1_BY_CUSTOMER]: states.REVIEWED_BY_CUSTOMER,
       },
     },
 
@@ -228,13 +230,18 @@ export const isRelevantPastTransition = transition => {
     transitions.AUTO_CANCEL_FROM_DISPUTED,
     transitions.CANCEL_FROM_DISPUTED,
     transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.EARLY_REVIEW_1_BY_CUSTOMER,
     transitions.REVIEW_1_BY_PROVIDER,
     transitions.REVIEW_2_BY_CUSTOMER,
     transitions.REVIEW_2_BY_PROVIDER,
   ].includes(transition);
 };
 export const isCustomerReview = transition => {
-  return [transitions.REVIEW_1_BY_CUSTOMER, transitions.REVIEW_2_BY_CUSTOMER].includes(transition);
+  return [
+    transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.EARLY_REVIEW_1_BY_CUSTOMER,
+    transitions.REVIEW_2_BY_CUSTOMER,
+  ].includes(transition);
 };
 
 export const isProviderReview = transition => {
@@ -258,6 +265,7 @@ export const isCompleted = transition => {
   const txCompletedTransitions = [
     transitions.AUTO_COMPLETE,
     transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.EARLY_REVIEW_1_BY_CUSTOMER,
     transitions.REVIEW_1_BY_PROVIDER,
     transitions.REVIEW_2_BY_CUSTOMER,
     transitions.REVIEW_2_BY_PROVIDER,
