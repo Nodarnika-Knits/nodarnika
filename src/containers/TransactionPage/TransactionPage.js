@@ -68,7 +68,6 @@ import TransactionFields from './TransactionFields/TransactionFields.js';
 import ActivityFeed from './ActivityFeed/ActivityFeed';
 import DisputeModal, { DISPUTE_REASONS } from './DisputeModal/DisputeModal';
 import FileAttachments from './FileAttachments/FileAttachments';
-import DisputeModal from './DisputeModal/DisputeModal';
 import ReportModal from './ReportModal/ReportModal';
 import ReviewModal from './ReviewModal/ReviewModal';
 import RequestChangesModal from './RequestChangesModal/RequestChangesModal';
