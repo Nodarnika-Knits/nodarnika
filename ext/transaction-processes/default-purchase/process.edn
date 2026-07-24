@@ -51,7 +51,7 @@
    :to :state/received}
   {:name :transition/mark-delivered,
    :actor :actor.role/provider,
-   :actions [],
+   :actions [{:name :action/update-protected-data}],
    :from :state/purchased,
    :to :state/delivered}
   {:name :transition/operator-mark-delivered,
@@ -82,6 +82,11 @@
    :actions [],
    :from :state/delivered,
    :to :state/disputed}
+  {:name :transition/dispute-after-receive,
+   :actor :actor.role/customer,
+   :actions [{:name :action/update-protected-data}],
+   :from :state/received,
+   :to :state/disputed}
   {:name :transition/mark-received-from-disputed,
    :actor :actor.role/operator,
    :actions [{:name :action/stripe-create-payout}],
@@ -111,7 +116,7 @@
    :from :state/purchased,
    :to :state/canceled}
   {:name :transition/cancel-from-disputed,
-   :actor :actor.role/operator,
+   :actor :actor.role/provider,
    :actions
    [{:name :action/calculate-full-refund}
     {:name :action/stripe-refund-payment}
@@ -134,7 +139,10 @@
    :from :state/disputed,
    :to :state/canceled}
   {:name :transition/auto-complete,
-   :at {:fn/timepoint [:time/first-entered-state :state/received]},
+   :at
+   {:fn/plus
+    [{:fn/timepoint [:time/first-entered-state :state/received]}
+     {:fn/period ["P14D"]}]},
    :actions [],
    :from :state/received,
    :to :state/completed}
@@ -155,6 +163,11 @@
    :actions [{:name :action/post-review-by-customer}],
    :from :state/completed,
    :to :state/reviewed-by-customer}
+  {:name :transition/early-review-1-by-customer,
+   :actor :actor.role/customer,
+   :actions [{:name :action/post-review-by-customer}],
+   :from :state/received,
+   :to :state/reviewed-by-customer} 
   {:name :transition/review-2-by-customer,
    :actor :actor.role/customer,
    :actions
@@ -267,6 +280,10 @@
    :on :transition/dispute,
    :to :actor.role/provider,
    :template :purchase-order-disputed}
+  {:name :notification/order-disputed-after-receive,
+   :on :transition/dispute-after-receive,
+   :to :actor.role/provider,
+   :template :purchase-order-disputed}
   {:name :notification/purchase-order-operator-disputed-to-customer,
    :on :transition/operator-dispute,
    :to :actor.role/customer,
@@ -283,14 +300,14 @@
    :on :transition/mark-received-from-disputed,
    :to :actor.role/provider,
    :template :purchase-order-received-from-disputed-provider}
-  {:name :notification/canceled-from-disputed-customer,
-   :on :transition/cancel-from-disputed,
-   :to :actor.role/customer,
-   :template :purchase-order-canceled-from-disputed-customer}
-  {:name :notification/canceled-from-disputed-provider,
-   :on :transition/cancel-from-disputed,
-   :to :actor.role/provider,
-   :template :purchase-order-canceled-from-disputed-provider}
+  ;; {:name :notification/canceled-from-disputed-customer,
+  ;;  :on :transition/cancel-from-disputed,
+  ;;  :to :actor.role/customer,
+  ;;  :template :purchase-order-canceled-from-disputed-customer}
+  ;; {:name :notification/canceled-from-disputed-provider,
+  ;;  :on :transition/cancel-from-disputed,
+  ;;  :to :actor.role/provider,
+  ;;  :template :purchase-order-canceled-from-disputed-provider}
   {:name :notification/auto-canceled-from-disputed-customer,
    :on :transition/auto-cancel-from-disputed,
    :to :actor.role/customer,
@@ -315,6 +332,10 @@
    :on :transition/review-1-by-customer,
    :to :actor.role/provider,
    :template :purchase-review-by-other-party-unpublished}
+  {:name :notification/early-review-by-customer-first,
+   :on :transition/early-review-1-by-customer,
+   :to :actor.role/provider,
+   :template :purchase-review-by-other-party-unpublished} 
   {:name :notification/review-by-provider-second,
    :on :transition/review-2-by-provider,
    :to :actor.role/customer,

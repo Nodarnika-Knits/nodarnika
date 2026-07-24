@@ -13,7 +13,7 @@ import {
  * @param {*} processInfo  details about process
  */
 export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
-  const { transaction, transactionRole, nextTransitions } = txInfo;
+  const { transaction, transactionRole, nextTransitions, onOpenMarkDeliveredModal } = txInfo;
   const isProviderBanned = transaction?.provider?.attributes?.banned;
   const isShippable = transaction?.attributes?.protectedData?.deliveryMethod === 'shipping';
   const _ = CONDITIONAL_RESOLVER_WILDCARD;
@@ -26,6 +26,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
     isCustomer,
     actionButtonProps,
     leaveReviewProps,
+    onOpenDisputeModal,
   } = processInfo;
 
   return new ConditionalResolver([processState, transactionRole])
@@ -36,7 +37,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
       const requestAfterInquiry = transitions.REQUEST_PAYMENT_AFTER_INQUIRY;
       const hasCorrectNextTransition = transitionNames.includes(requestAfterInquiry);
       const showOrderPanel = !isProviderBanned && hasCorrectNextTransition;
-      return { processName, processState, showOrderPanel };
+      return { processName, processState, showOrderPanel, showDetailCardHeadings: true };
     })
     .cond([states.INQUIRY, PROVIDER], () => {
       return { processName, processState, showDetailCardHeadings: true };
@@ -63,6 +64,7 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
         showActionButtons: true,
         primaryButtonProps: actionButtonProps(transitions.MARK_DELIVERED, PROVIDER, {
           actionButtonTranslationId,
+          ...(isShippable ? { onAction: onOpenMarkDeliveredModal } : {}),
         }),
       };
     })
@@ -74,6 +76,32 @@ export const getStateDataForPurchaseProcess = (txInfo, processInfo) => {
         showDispute: true,
         showActionButtons: true,
         primaryButtonProps: actionButtonProps(transitions.MARK_RECEIVED, CUSTOMER),
+        secondaryButtonProps: actionButtonProps(transitions.DISPUTE, CUSTOMER, {
+          onAction: onOpenDisputeModal,
+        }),
+      };
+    })
+    .cond([states.RECEIVED, CUSTOMER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showDispute: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(transitions.DISPUTE, CUSTOMER, {
+          onAction: onOpenDisputeModal,
+        }),
+        secondaryButtonProps: leaveReviewProps,
+      };
+    })
+    .cond([states.DISPUTED, PROVIDER], () => {
+      return {
+        processName,
+        processState,
+        showDetailCardHeadings: true,
+        showDispute: true,
+        showActionButtons: true,
+        primaryButtonProps: actionButtonProps(transitions.CANCEL_FROM_DISPUTED, PROVIDER),
       };
     })
     .cond([states.COMPLETED, _], () => {

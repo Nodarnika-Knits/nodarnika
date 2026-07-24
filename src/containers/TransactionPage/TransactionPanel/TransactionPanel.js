@@ -108,16 +108,19 @@ export class TransactionPanelComponent extends Component {
       transitions,
       processName,
       protectedData,
+      marketplaceName,
       messages,
       savePaymentMethodFailed = false,
       fetchMessagesError,
       onOpenDisputeModal,
+      onOpenReportModal,
       showListingImage,
       intl,
       stateData = {},
       showBookingLocation = false,
       requestQuote,
       offer,
+      fileAttachments,
       activityFeed,
       actionButtons,
       isInquiryProcess,
@@ -178,6 +181,14 @@ export class TransactionPanelComponent extends Component {
 
     const classes = classNames(rootClassName || css.root, className);
 
+    const showDiminishedButton = stateData.showDispute || stateData.showReport;
+    const onOpenDiminishedModal = stateData.showReport ? onOpenReportModal : onOpenDisputeModal;
+    const diminishedButtonMessage = stateData.showReport ? (
+      <FormattedMessage id="TransactionPanel.reportOrder" />
+    ) : (
+      <FormattedMessage id="TransactionPanel.disputeOrder" />
+    );
+
     return (
       <div className={classes}>
         <div className={css.container}>
@@ -210,6 +221,7 @@ export class TransactionPanelComponent extends Component {
               transactionRole={transactionRole}
               providerName={authorDisplayName}
               customerName={customerDisplayName}
+              marketplaceName={marketplaceName}
               listingId={listing?.id?.uuid}
               listingTitle={listingTitle}
               listingDeleted={listingDeleted}
@@ -218,6 +230,7 @@ export class TransactionPanelComponent extends Component {
             {requestQuote}
             {offer}
             {transactionFieldsComponent}
+            {fileAttachments}
 
             {!isInquiryProcess ? (
               <div className={css.orderDetails}>
@@ -229,11 +242,11 @@ export class TransactionPanelComponent extends Component {
                       priceVariantName={priceVariantName}
                     />
                   ) : null}
-                  <DiminishedActionButtonMaybe
+                  {/* <DiminishedActionButtonMaybe
                     id="mobile_disputeOrderButton"
                     showDispute={stateData.showDispute}
                     onOpenDisputeModal={onOpenDisputeModal}
-                  />
+                  /> */}
                 </div>
 
                 {savePaymentMethodFailed ? (
@@ -333,11 +346,11 @@ export class TransactionPanelComponent extends Component {
                   <div className={css.desktopActionButtons}>{actionButtons('desktop')}</div>
                 ) : null}
               </div>
-              <DiminishedActionButtonMaybe
+              {/* <DiminishedActionButtonMaybe
                 id="desktop_disputeOrderButton"
                 showDispute={stateData.showDispute}
                 onOpenDisputeModal={onOpenDisputeModal}
-              />
+              /> */}
             </div>
           </div>
         </div>

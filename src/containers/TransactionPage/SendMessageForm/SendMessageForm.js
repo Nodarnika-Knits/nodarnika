@@ -7,14 +7,14 @@ import { FormattedMessage, injectIntl, intlShape } from '../../../util/reactIntl
 import { propTypes } from '../../../util/types';
 
 import { Form, FieldTextInput, FileUpload, Button } from '../../../components';
-import { MAX_FILE_UPLOAD_COUNT } from '../TransactionPage.duck';
+import { MAX_FILE_UPLOAD_COUNT } from '../../../util/fileHelpers';
 
 import css from './SendMessageForm.module.css';
 
 const BLUR_TIMEOUT_MS = 100;
 
 const FieldAddFile = props => {
-  const { formApi, onFileUpload, onRemoveFile, showFileLink, fileInputRef, ...rest } = props;
+  const { formApi, onFileUpload, showFileLink, fileInputRef, ...rest } = props;
   if (!showFileLink) {
     return null;
   }
@@ -170,7 +170,7 @@ class SendMessageFormComponent extends Component {
                 onFocus={this.handleFocus}
                 onBlur={this.handleBlur}
               />
-              {showUploads ? (
+              {/* {showUploads ? (
                 <div className={css.files}>
                   {files.map(f => (
                     <FileUpload
@@ -181,7 +181,7 @@ class SendMessageFormComponent extends Component {
                     />
                   ))}
                 </div>
-              ) : null}
+              ) : null} */}
               <div className={css.submitContainer}>
                 <div className={css.errorContainer}>
                   {sendMessageError ? (
@@ -199,7 +199,7 @@ class SendMessageFormComponent extends Component {
                 </div>
 
                 <div className={css.messageActions}>
-                  <FieldAddFile
+                  {/* <FieldAddFile
                     id="addFile"
                     name="addFile"
                     label={addFileLabel}
@@ -210,7 +210,7 @@ class SendMessageFormComponent extends Component {
                     className={css.fileLink}
                     showFileLink={showFileLink}
                     fileInputRef={this.fileInputRef}
-                  />
+                  /> */}
                   <Button
                     className={css.submitButton}
                     inProgress={submitInProgress}

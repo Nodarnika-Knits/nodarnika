@@ -3,15 +3,19 @@
 .root {
   composes: marketplaceModalBaseStyles from global;
   padding-top: 70px;
+  overflow: hidden;
 
   @media (--viewportMedium) {
     flex-basis: 567px;
+    max-width: 567px;
     min-height: 687px;
   }
 }
 
 .modalContent {
   flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Icon of the modal */
@@ -35,8 +39,10 @@
 
   /* Layout: size and positioning */
   width: 100%;
+  min-width: 0;
   height: auto;
   margin-top: 24px;
+  overflow: hidden;
 }
 
 .errorPlaceholder {
@@ -49,14 +55,75 @@
   }
 }
 
+.disputeField {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 24px;
+  }
+}
+
 .disputeMessage {
   flex-shrink: 0;
-  margin-top: 24px;
   margin-bottom: 24px;
 
   @media (--viewportMedium) {
-    margin-top: 30px;
+    margin-bottom: 28px;
   }
+}
+
+.mediaSection {
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 20px;
+}
+
+.mediaLabel {
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--colorGrey700);
+  margin: 0 0 8px 0;
+}
+
+.files {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.addFileButton {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--colorPrimary);
+  font-size: 14px;
+  font-weight: var(--fontWeightMedium);
+  padding: 6px 0;
+
+  &:hover {
+    color: var(--colorPrimaryDark);
+  }
+}
+
+.addFileLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.addFileCount {
+  color: var(--colorGrey500);
+  font-size: 12px;
+}
+
+.hiddenFileInput {
+  display: none;
 }
 
 .submitButton {

@@ -379,12 +379,88 @@
 }
 
 .shippingInfoContent {
-  padding: 0px 0 0px 13px;
   margin-top: 12px;
 
   @media (--viewportMedium) {
-    padding: 4px 0 4px 13px;
+    padding: 4px 0 4px 0px;
     margin-top: 8px;
+  }
+}
+
+.shipmentInfoSection {
+  margin-top: 24px;
+}
+
+.shipmentInfoContent {
+  padding: 0 0 0 13px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shipmentField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shipmentFieldLabel {
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 13px;
+  color: var(--colorGrey500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.disputeInfoSection {
+  margin-bottom: 24px;
+}
+
+.disputeInfoContent {
+  padding: 0 0 0 13px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.disputeField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.disputeFieldLabel {
+  font-weight: var(--fontWeightSemiBold);
+  font-size: 13px;
+  color: var(--colorGrey500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.disputeFiles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.disputeFileButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--colorPrimary);
+  font-size: 14px;
+  text-align: left;
+  min-width: 0;
+
+  &:hover {
+    color: var(--colorPrimaryDark);
+    text-decoration: underline;
   }
 }
 

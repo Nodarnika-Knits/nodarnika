@@ -57,10 +57,13 @@ export const transitions = {
   DISPUTE: 'transition/dispute',
   OPERATOR_DISPUTE: 'transition/operator-dispute',
 
+  // Customer can dispute after marking the order as received (within the 14D auto-complete window)
+  DISPUTE_AFTER_RECEIVE: 'transition/dispute-after-receive',
+
   // If nothing is done to disputed transaction it ends up to Canceled state
   AUTO_CANCEL_FROM_DISPUTED: 'transition/auto-cancel-from-disputed',
 
-  // Operator can cancel disputed transaction manually
+  // Provider can cancel disputed transaction manually
   CANCEL_FROM_DISPUTED: 'transition/cancel-from-disputed',
 
   // Operator can mark the disputed transaction as received
@@ -76,6 +79,7 @@ export const transitions = {
   REVIEW_1_BY_PROVIDER: 'transition/review-1-by-provider',
   REVIEW_2_BY_PROVIDER: 'transition/review-2-by-provider',
   REVIEW_1_BY_CUSTOMER: 'transition/review-1-by-customer',
+  EARLY_REVIEW_1_BY_CUSTOMER: 'transition/early-review-1-by-customer',
   REVIEW_2_BY_CUSTOMER: 'transition/review-2-by-customer',
   EXPIRE_CUSTOMER_REVIEW_PERIOD: 'transition/expire-customer-review-period',
   EXPIRE_PROVIDER_REVIEW_PERIOD: 'transition/expire-provider-review-period',
@@ -180,6 +184,8 @@ export const graph = {
     [states.RECEIVED]: {
       on: {
         [transitions.AUTO_COMPLETE]: states.COMPLETED,
+        [transitions.DISPUTE_AFTER_RECEIVE]: states.DISPUTED,
+        [transitions.EARLY_REVIEW_1_BY_CUSTOMER]: states.REVIEWED_BY_CUSTOMER,
       },
     },
 
@@ -219,17 +225,23 @@ export const isRelevantPastTransition = transition => {
     transitions.OPERATOR_MARK_DELIVERED,
     transitions.DISPUTE,
     transitions.OPERATOR_DISPUTE,
+    transitions.DISPUTE_AFTER_RECEIVE,
     transitions.AUTO_COMPLETE,
     transitions.AUTO_CANCEL_FROM_DISPUTED,
     transitions.CANCEL_FROM_DISPUTED,
     transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.EARLY_REVIEW_1_BY_CUSTOMER,
     transitions.REVIEW_1_BY_PROVIDER,
     transitions.REVIEW_2_BY_CUSTOMER,
     transitions.REVIEW_2_BY_PROVIDER,
   ].includes(transition);
 };
 export const isCustomerReview = transition => {
-  return [transitions.REVIEW_1_BY_CUSTOMER, transitions.REVIEW_2_BY_CUSTOMER].includes(transition);
+  return [
+    transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.EARLY_REVIEW_1_BY_CUSTOMER,
+    transitions.REVIEW_2_BY_CUSTOMER,
+  ].includes(transition);
 };
 
 export const isProviderReview = transition => {
@@ -253,6 +265,7 @@ export const isCompleted = transition => {
   const txCompletedTransitions = [
     transitions.AUTO_COMPLETE,
     transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.EARLY_REVIEW_1_BY_CUSTOMER,
     transitions.REVIEW_1_BY_PROVIDER,
     transitions.REVIEW_2_BY_CUSTOMER,
     transitions.REVIEW_2_BY_PROVIDER,
