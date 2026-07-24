@@ -14,6 +14,22 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2026-XX-XX
 
+- [change] server/log.js: omit not-found listings from Sentry errors
+  [#881](https://github.com/sharetribe/web-template/pull/881)
+- [fix] Catch auth thunk rejections to avoid React development overlay.
+  [#882](https://github.com/sharetribe/web-template/pull/882)
+- [fix] Fix negotiation email templates [#878](https://github.com/sharetribe/web-template/pull/878)
+- [fix] Fix typo in a default-download email template
+  [#877](https://github.com/sharetribe/web-template/pull/877)
+
+## [v12.0.0] 2026-07-14
+
+This major release prepares the template for the default-download process. This process is used to
+purchase digital files. The gist is that provider can attach files to a listing and those are
+visible to the customer after the purchase.
+
+- [add] Add support of purchasing digital files (prepare template for default-download process).
+  [#845](https://github.com/sharetribe/web-template/pull/845)
 - [fix] CreateUserWithIdp: harden data handling of st-authinfo cookie.
   [#874](https://github.com/sharetribe/web-template/pull/874)
 - [change] Update several dependencies. [#875](https://github.com/sharetribe/web-template/pull/875)
@@ -25,12 +41,14 @@ way to update this template, but currently, we follow a pattern:
   supported now for users without access to the Stripe dashboard.
   [#871](https://github.com/sharetribe/web-template/pull/871)
 
+  [v12.0.0]: https://github.com/sharetribe/web-template/compare/v11.2.2...v12.0.0
+
 ## [v11.2.2] 2026-06-26
 
 - [fix] Fix open redirect vulnerabilities that could be abused for phishing attacks.
   [#869](https://github.com/sharetribe/web-template/pull/869)
 
-[v11.2.2]: https://github.com/sharetribe/web-template/compare/v11.2.1...v11.2.2
+  [v11.2.2]: https://github.com/sharetribe/web-template/compare/v11.2.1...v11.2.2
 
 ## [v11.2.1] 2026-06-25
 
@@ -47,7 +65,7 @@ way to update this template, but currently, we follow a pattern:
 - [add] Add currently available translations for DE, ES, FR.
   [#859](https://github.com/sharetribe/web-template/pull/859)
 
-[v11.2.1]: https://github.com/sharetribe/web-template/compare/v11.2.0...v11.2.1
+  [v11.2.1]: https://github.com/sharetribe/web-template/compare/v11.2.0...v11.2.1
 
 ## [v11.2.0] 2026-06-04
 

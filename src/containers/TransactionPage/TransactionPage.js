@@ -33,6 +33,8 @@ import {
   isPurchaseProcess,
   PURCHASE_PROCESS_NAME,
   isInquiryProcess,
+  DOWNLOAD_PROCESS_NAME,
+  isDownloadProcess,
 } from '../../transactions/transaction';
 
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
@@ -65,6 +67,9 @@ import Offer from './Offer/Offer';
 import TransactionFields from './TransactionFields/TransactionFields.js';
 import ActivityFeed from './ActivityFeed/ActivityFeed';
 import DisputeModal, { DISPUTE_REASONS } from './DisputeModal/DisputeModal';
+import FileAttachments from './FileAttachments/FileAttachments';
+import DisputeModal from './DisputeModal/DisputeModal';
+import ReportModal from './ReportModal/ReportModal';
 import ReviewModal from './ReviewModal/ReviewModal';
 import RequestChangesModal from './RequestChangesModal/RequestChangesModal';
 import MakeCounterOfferModal from './MakeCounterOfferModal/MakeCounterOfferModal';
@@ -148,6 +153,24 @@ const onDisputeOrder = (
         onClearUploadedFiles(fileUploads.map(f => f.tempId));
       }
       return setDisputeSubmitted(true);
+    })
+    .catch(e => {
+      // Do nothing.
+    });
+};
+
+// Submit report and close the review modal
+const onReportOrder = (
+  currentTransactionId,
+  transitionName,
+  onTransition,
+  setReportSubmitted
+) => values => {
+  const { reportReason } = values;
+  const params = reportReason ? { protectedData: { reportReason } } : {};
+  onTransition(currentTransactionId, transitionName, params)
+    .then(r => {
+      return setReportSubmitted(true);
     })
     .catch(e => {
       // Do nothing.
@@ -377,6 +400,8 @@ export const TransactionPageComponent = props => {
   const [isDisputeModalOpen, setDisputeModalOpen] = useState(false);
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
   const [disputeFileTempIds, setDisputeFileTempIds] = useState([]);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+  const [isReportModalOpen, setReportModalOpen] = useState(false);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [isRequestChangesModalOpen, setRequestChangesModalOpen] = useState(false);
@@ -435,7 +460,7 @@ export const TransactionPageComponent = props => {
     ...restOfProps
   } = props;
 
-  const { listing, provider, customer, booking } = transaction || {};
+  const { listing, provider, customer, booking, protectedFileAttachments } = transaction || {};
   const txTransitions = transaction?.attributes?.transitions || [];
   const isProviderRole = transactionRole === PROVIDER;
   const isCustomerRole = transactionRole === CUSTOMER;
@@ -583,25 +608,31 @@ export const TransactionPageComponent = props => {
     const rating = Number.parseInt(reviewRating, 10);
     const { states, transitions } = process;
 
-    const transitionOptions =
-      transactionRole === CUSTOMER
-        ? {
-            reviewAsFirst:
-              transaction.attributes.lastTransition === transitions.MARK_RECEIVED
-                ? transitions.EARLY_REVIEW_1_BY_CUSTOMER
-                : transitions.REVIEW_1_BY_CUSTOMER,
-            reviewAsSecond: transitions.REVIEW_2_BY_CUSTOMER,
-            hasOtherPartyReviewedFirst: process
-              .getTransitionsToStates([states.REVIEWED_BY_PROVIDER])
-              .includes(transaction.attributes.lastTransition),
-          }
-        : {
-            reviewAsFirst: transitions.REVIEW_1_BY_PROVIDER,
-            reviewAsSecond: transitions.REVIEW_2_BY_PROVIDER,
-            hasOtherPartyReviewedFirst: process
-              .getTransitionsToStates([states.REVIEWED_BY_CUSTOMER])
-              .includes(transaction.attributes.lastTransition),
-          };
+    // The download process only supports a single customer-side review transition.
+    // Bidirectional review transitions (REVIEW_1/REVIEW_2) don't exist in that process.
+    const transitionOptions = isDownloadProcess(processName)
+      ? {
+          reviewAsFirst: transitions.REVIEW,
+          hasOtherPartyReviewedFirst: false,
+        }
+      : transactionRole === CUSTOMER
+      ? {
+          reviewAsFirst:
+            transaction.attributes.lastTransition === transitions.MARK_RECEIVED
+              ? transitions.EARLY_REVIEW_1_BY_CUSTOMER
+              : transitions.REVIEW_1_BY_CUSTOMER,
+          reviewAsSecond: transitions.REVIEW_2_BY_CUSTOMER,
+          hasOtherPartyReviewedFirst: process
+            .getTransitionsToStates([states.REVIEWED_BY_PROVIDER])
+            .includes(transaction.attributes.lastTransition),
+        }
+      : {
+          reviewAsFirst: transitions.REVIEW_1_BY_PROVIDER,
+          reviewAsSecond: transitions.REVIEW_2_BY_PROVIDER,
+          hasOtherPartyReviewedFirst: process
+            .getTransitionsToStates([states.REVIEWED_BY_CUSTOMER])
+            .includes(transaction.attributes.lastTransition),
+        };
     const params = { reviewRating: rating, reviewContent };
 
     onSendReview(transaction, transitionOptions, params, config)
@@ -617,6 +648,11 @@ export const TransactionPageComponent = props => {
   // Open dispute modal
   const onOpenDisputeModal = () => {
     setDisputeModalOpen(true);
+  };
+
+  // Open report modal
+  const onOpenReportModal = () => {
+    setReportModalOpen(true);
   };
 
   const deletedListingTitle = intl.formatMessage({
@@ -903,10 +939,12 @@ export const TransactionPageComponent = props => {
     isCustomerBanned,
     isProviderBanned,
     isOfferOrRequest,
-    isNegotiationProcess,
-    isBookingProcess: isBookingProcess(processName),
-    isPurchaseProcess: processName === PURCHASE_PROCESS_NAME,
-    isInquiryProcess: processName === INQUIRY_PROCESS_NAME,
+    processName,
+    // isNegotiationProcess,
+    // isBookingProcess: isBookingProcess(processName),
+    // isPurchaseProcess: processName === PURCHASE_PROCESS_NAME,
+    // isDownloadProcess: isDownloadProcess(processName),
+    // isInquiryProcess: processName === INQUIRY_PROCESS_NAME,
     isRegularNegotiation,
   });
 
@@ -924,10 +962,12 @@ export const TransactionPageComponent = props => {
       transitions={txTransitions}
       processName={processName}
       protectedData={transaction?.attributes?.protectedData}
+      marketplaceName={config.marketplaceName}
       messages={messages}
       savePaymentMethodFailed={savePaymentMethodFailed}
       fetchMessagesError={fetchMessagesError}
       onOpenDisputeModal={onOpenDisputeModal}
+      onOpenReportModal={onOpenReportModal}
       stateData={stateData}
       transactionRole={transactionRole}
       showBookingLocation={showBookingLocation}
@@ -973,6 +1013,17 @@ export const TransactionPageComponent = props => {
           isCounterpartyInactive={isCounterpartyInactive}
         />
       )}
+      fileAttachments={
+        <FileAttachments
+          isDownloadProcess={isDownloadProcess(processName)}
+          allowFiles={!config.accessControl.marketplace.fileUploadAndDownloadDisabled}
+          hideFiles={stateData.processState === 'canceled'}
+          fileAttachments={protectedFileAttachments}
+          onDownloadFile={onDownloadFile}
+          intl={intl}
+          marketplaceName={config.marketplaceName}
+        />
+      }
       activityFeed={
         <ActivityFeed
           messages={messages}
@@ -1046,6 +1097,8 @@ export const TransactionPageComponent = props => {
             </H4>
           }
           author={listing.author}
+          hideAuthorInfo={true}
+          hidePrice={isDownloadProcess(processName)}
           onSubmit={isNegotiationProcess ? onMakeOffer : handleSubmitOrderRequest}
           onManageDisableScrolling={onManageDisableScrolling}
           {...restOfProps}
@@ -1110,6 +1163,24 @@ export const TransactionPageComponent = props => {
           sendReviewError={sendReviewError}
           marketplaceName={config.marketplaceName}
         />
+        {process?.transitions?.REPORT ? (
+          <ReportModal
+            id="ReportOrderModal"
+            isOpen={isReportModalOpen}
+            focusElementId={`${actionButtonContainer}_reportOrderButton`}
+            onCloseModal={() => setReportModalOpen(false)}
+            onManageDisableScrolling={onManageDisableScrolling}
+            onReportOrder={onReportOrder(
+              transaction?.id,
+              process.transitions.REPORT,
+              onTransition,
+              setReportSubmitted
+            )}
+            reportSubmitted={reportSubmitted}
+            reportInProgress={transitionInProgress === process.transitions.REPORT}
+            reportError={transitionError}
+          />
+        ) : null}
         {process?.transitions?.DISPUTE ? (
           <DisputeModal
             id="DisputeOrderModal"
